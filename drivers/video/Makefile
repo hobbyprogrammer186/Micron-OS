@@ -1,0 +1,1 @@
+OBJ += video/vesa.obj

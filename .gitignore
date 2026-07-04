@@ -1,0 +1,12 @@
+build/
+*.obj
+*.o
+*.bin
+*.mxe
+*.mlb
+*./
+*.mdrv
+*.msrv
+*.iso
+*.img
+*.qcow2
