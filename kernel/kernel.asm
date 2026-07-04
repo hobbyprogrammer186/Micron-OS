@@ -1,9 +1,18 @@
+;
+; Copyright (C) 2026 First Person
+;
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+;
+
 bits 32
 org 0x7E00
 
 %include "gdt.asm"
 %include "idt.asm"
-%include "vesa.asm"
+%include "paging.asm"
 %include "definations.asm"
 
 start:
@@ -17,6 +26,9 @@ start:
     mov eax, 0x0118
     call changeResulation
 
+panic:
+    hlt
+
 switchMode:
     cmp ax, 0
     je .real
@@ -25,6 +37,8 @@ switchMode:
     cli
     mov ax, 0
     call gdtSetMode
+    call disablePaging
+    call idtDisable
 
     mov sp, 0x8000
     mov ax, 0
@@ -38,6 +52,13 @@ switchMode:
     cli
     mov ax, 1
     call gdtSetMode
+    call enablePaging
+    call idtEnable
     ret
 
-vbeScreen      db 0
+vbeScreen           db 0
+
+%ifdef SIZE
+times SIZE-($-$$)   db 0
+%endif
+kend                db 0    ; End Of Kernel Address

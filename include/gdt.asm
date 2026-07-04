@@ -1,22 +1,35 @@
+;
+; Copyright (C) 2026 First Person
+;
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+;
+
+section .data
 gdtTable:
-    dq 0        ; Null Descriptor
-    dw 0        ; Kernel Mode Code Segment
-    dq 0        ; Kernel Mode Data Segment
-    dw 0        ; User Mode Code Segment
-    dq 0        ; User Mode Data Segment
-    db 0        ; Task State Segment
+    ; 0x00: Null Descriptor
+    dq 0x0
+
+    ; 0x08: Kernel Code Descriptor (DPL=0, Type=0x9A)
+    dq 0x00CF9A000000FFFF
+
+    ; 0x10: Kernel Data Descriptor (DPL=0, Type=0x92)
+    dq 0x00CF92000000FFFF
+
+    ; 0x18: User Code Descriptor (DPL=3, Type=0xFA)
+    dq 0x00CFFA000000FFFF
+
+    ; 0x20: User Data Descriptor (DPL=3, Type=0xF2)
+    dq 0x00CFF2000000FFFF
 gdtTableEnd:
 
 gdtDescriptor:
-    dw gdtTableEnd - gdtTable
-    dd gdtTable
+    dw gdtTableEnd - gdtTable - 1 ; Limit (size - 1)
+    dd gdtTable                   ; Base address
 
 gdtInit:
-    cli
-    mov eax, gdtTable
-    mov [gdtDescriptor + 2], eax
-    mov ax, gdtTableEnd - gdtTable
-    mov [gdtDescriptor], ax
     lgdt [gdtDescriptor]
     ret
 
@@ -40,8 +53,10 @@ gdtSetMode:
     ret
 
 reloadSegments:
-    jmp 0x8:.reloadCS
+    ; Reload Code Segment (0x08 is the offset for the first descriptor)
+    jmp 0x08:.reloadCS
 .reloadCS:
+    ; Reload Data Segments (0x10 is the offset for the second descriptor)
     mov ax, 0x10
     mov ds, ax
     mov es, ax

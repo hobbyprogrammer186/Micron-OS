@@ -1,4 +1,4 @@
-BUILD_DIR=$(CURDIR)/build
+BUILD_DIR=build
 INCLUDE_DIR=$(CURDIR)/include
 ASM=nasm
 ASFLAGS=-d$(LANGUAGE) -i $(INCLUDE_DIR) -f bin
@@ -16,43 +16,44 @@ include kernel/Makefile
 all: postBuild micron
 
 postBuild:
+	@echo "=============="
+	@echo "    Kernel"
+	@echo "=============="
 	@mkdir -p $(BUILD_DIR)
-
 
 SOURCES_C := $(shell find kernel -name '*.c')
 SOURCES_ASM := $(shell find kernel -name '*.asm')
+SOURCES_DRIVERS_ASM := $(shell find drivers -name '*.asm')
 BUILD_OBJS := $(patsubst kernel/%.c,$(BUILD_DIR)/kernel/%.o,$(SOURCES_C)) \
-		$(patsubst kernel/%.asm,$(BUILD_DIR)/kernel/%.obj,$(SOURCES_ASM))
+		$(patsubst kernel/%.asm,$(BUILD_DIR)/kernel/%.obj,$(SOURCES_ASM)) \
+		$(patsubst drivers/%.asm,$(BUILD_DIR)/drivers/%.obj,$(SOURCES_DRIVERS_ASM))
+
+ALL_ASM_SOURCES := $(SOURCES_ASM) $(SOURCES_DRIVERS_ASM)
+PRE_INCLUDE_SOURCES := $(filter-out kernel/kernel.asm,$(ALL_ASM_SOURCES))
+
+NASM_PRE_INCLUDES := $(patsubst %, -p %, $(PRE_INCLUDE_SOURCES))
 
 micron: $(BUILD_OBJS)
 	@echo "  LD $(BUILD_DIR)/$@"
-	@$(ASM) $(ASFLAGS) $(ASMObjects) -o $(BUILD_DIR)/$@
-#	@$(ASM) -f bin -o $(BUILD_DIR)/$@ $^
+	@$(ASM) -i $(INCLUDE_DIR) -d$(LANGUAGE) $(ASFLAGS) $(NASM_PRE_INCLUDES) kernel/kernel.asm -o $(BUILD_DIR)/$@.tmp
+	@$(ASM) -i $(INCLUDE_DIR) -d$(LANGUAGE) -dSIZE=$$(stat -c %s $(BUILD_DIR)/$@.tmp) -dKERNEL $(ASFLAGS) $(NASM_PRE_INCLUDES) kernel/kernel.asm -o $(BUILD_DIR)/$@
+	@rm -rf $(BUILD_DIR)/$@.tmp
 
 $(BUILD_DIR)/kernel/%.obj: kernel/%.asm
 	@echo "  AS $@"
 	@mkdir -p $(dir $@)
-	$(eval ASMObjects += $<)
-#	@$(ASM) $(ASFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.obj: kernel/%.asm
 	@echo "  AS $@"
 	@mkdir -p $(dir $@)
-	$(eval ASMObjects += $<)
-#	@$(ASM) $(ASFLAGS) $< -o $@
 
 $(BUILD_DIR)/drivers/%.obj: drivers/%.asm
 	@echo "  AS $@"
 	@mkdir -p $(dir $@)
-	$(eval ASMObjects += $<)
-#	@$(ASM) -i $(INCLUDE_DIR) $(ASFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.obj: drivers/%.asm
 	@echo "  AS $@"
 	@mkdir -p $(dir $@)
-	$(eval ASMObjects += $<)
-#	@$(ASM) -i $(INCLUDE_DIR) $(ASFLAGS) $< -o $@
 
 clean:
-#	@find . \( -name '*.img' -o -name '*.mcxe' -o -name '*.mlib' -o -name '*.bin' -o -name '*.obj' -o -name '*.o' -o -name 'micron' \) -delete
 	@rm -rf $(BUILD_DIR)

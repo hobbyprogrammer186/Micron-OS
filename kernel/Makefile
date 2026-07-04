@@ -1,1 +1,1 @@
-OBJ += kernel.obj
+OBJ += kernel.obj mm/mm.obj

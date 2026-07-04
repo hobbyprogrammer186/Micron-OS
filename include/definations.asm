@@ -1,7 +1,13 @@
-; Raw x86_64 BIOS/DOS error codes with SYSTEM_CODE_ prefix
-; These values correspond to legacy BIOS/DOS AH/AL return codes
-; for disk, file, and generic BIOS services.
+;
+; Copyright (C) 2026 First Person
+;
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+;
 
+; System Code
 %define SYSTEM_CODE_SUCCESS                    0x00  ; No error
 %define SYSTEM_CODE_ERROR_INVALID_FUNCTION     0x01  ; Invalid function
 %define SYSTEM_CODE_ERROR_FILE_NOT_FOUND       0x02  ; File not found
@@ -42,3 +48,10 @@
 %define SYSTEM_CODE_ERROR_SEEK_ON_DEVICE       0x2F  ; Seek on device
 %define SYSTEM_CODE_ERROR_NON_SYSTEM_DISK      0x30  ; Non-system disk
 %define SYSTEM_CODE_ERROR_INCAPABLE            0x31  ; Not Supported
+
+; Memory Region Types
+%define MREGION_USEABLE                        1
+%define MREGION_RESERVED                       2
+%define MREGION_ACPI_RECL                      3
+%define MREGION_ACPI_ROM                       4
+%define MREGION_BAD                            5
