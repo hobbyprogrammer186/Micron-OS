@@ -10,6 +10,11 @@
 %include "definations.asm"
 %include "languages.asm"
 
+%ifdef DUMMY_BUILD
+%include "dummy/mm.asm"
+%include "dummy/kernel.asm"
+%endif
+
 struc VesaModeInfoBlock				;	VesaModeInfoBlock_size = 256 bytes
 	.ModeAttributes		resw 1
 	.FirstWindowAttributes	resb 1

@@ -51,6 +51,7 @@
 ; Extended System Code
 %define SYSTEM_CODE_ERROR_INCAPABLE            0x31  ; Not Supported
 %define SYSTEM_CODE_ERROR_BUFFER_OVERFLOW      0x32  ; Buffer Overflow
+%define SYSTEM_CODE_ERROR_MM_INIT_FAILURE       0x33  ; MM Initialization Failure
 
 ; Memory Region Types
 %define MREGION_USEABLE                        1

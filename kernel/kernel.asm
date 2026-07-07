@@ -15,6 +15,11 @@ org 0x7E00
 %include "paging.asm"
 %include "definations.asm"
 
+%ifdef DUMMY_BUILD
+%include "dummy/mm.asm"
+%include "dummy/vesa.asm"
+%endif
+
 start:
     xor ax, ax
     mov ds, ax

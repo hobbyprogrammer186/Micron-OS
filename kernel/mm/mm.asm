@@ -1,6 +1,9 @@
 bits 32
 
 %include "definations.asm"
+%ifdef DUMMY_BUILD
+%include "dummy/kernel.asm"
+%endif
 
 %define MEMREG_START            0x00EFFFFF
 %define MEMREG_END              MEMREG_START + 0x00E00000
@@ -58,7 +61,7 @@ mmInit:
 .initFail:
     mov ax, 1
     call switchMode
-    mov ax, MM_INIT_FAILURE
+    mov ax, SYSTEM_CODE_ERROR_MM_INIT_FAILURE
     mov bx, 0
     call panic
 .bufferOverflow:
@@ -86,9 +89,10 @@ getAddressOfList:
 ; ax: byte
 ; -Output-
 ; ax: system code (0 = success)
-; ebx: pointer (only valid when ax = 0)
-
+; bx: pointer (only valid when ax = 0 after allocating)
 kmalloc:
+    cmp ax, 0
+    je .ilegalNumber
     pushad
     xor bx, bx                  ; Start Address
     xor ecx, ecx                ; Ofset
@@ -237,17 +241,87 @@ kmalloc:
     
 .allocationComplete:
     ; Return success with first chunk address in EBX
-    mov ebx, edi
-    mov ax, SYSTEM_CODE_SUCCESS
+    mov [tmp], edi
     popad
+    mov ax, SYSTEM_CODE_SUCCESS
+    push bx
+    mov bx, [tmp]
+    call log
+    pop bx
     ret
     
 .allocationFailed:
     ; No suitable memory found
-    mov ax, SYSTEM_CODE_ERROR_OUT_OF_MEMORY
-    xor ebx, ebx
     popad
+    mov ax, SYSTEM_CODE_ERROR_OUT_OF_MEMORY
+    push bx
+    xor bx, bx
+    call log
+    pop bx
+    ret
+
+.ilegalNumber:
+    popad
+    mov eax, SYSTEM_CODE_ERROR_INVALID_ACCESS_CODE
+    xor bx, bx
+    call log
+    ret
+
+; Usage:
+; -Input-
+; ax: Chunk Address
+; -Output-
+; ax: system code (0 = success)
+free:
+    pushad
+    movzx ebx, ax              ; EBX = chunk address
+    cmp dword [ebx + VariableRegion.base], 0
+    je .notExist
+.findChunk:
+    ; Clear VariableRegion metadata with loop
+    xor eax, eax
+    mov ecx, ebx              ; ECX = start of VariableRegion
+    mov edx, ebx
+    add edx, VariableRegion_size ; EDX = end of VariableRegion
+.clearMetadata:
+    cmp ecx, edx
+    jge .metadataDone
+    mov [ecx], eax
+    add ecx, VariableRegion_size
+    jmp .clearMetadata
+.metadataDone:
+    ; Clear the actual memory data
+    mov ecx, [ebx + VariableRegion.len]
+    add ecx, ebx              ; ECX = end address of chunk
+    mov edi, ebx              ; EDI = start address
+.clearMemory:
+    cmp edi, ecx
+    jge .nextChunk
+    mov byte [edi], 0
+    add edi, 1
+    jmp .clearMemory
+.nextChunk:
+    ; Move to next chunk in linked list
+    mov ebx, [ebx + VariableRegion.next]
+    test ebx, ebx
+    jnz .findChunk
+    
+    ; All chunks deallocated
+    mov ax, SYSTEM_CODE_SUCCESS
+    popad
+    push bx
+    xor bx, bx
+    call log
+    ret
+.notExist:
+    popad
+    mov ax, SYSTEM_CODE_ERROR_INVALID_MEMORY_BLOCK
+    push bx
+    xor bx, bx
+    call log
+    pop bx
     ret
 
 allocatedMemRegEntries  db 0
 endAddressOfMemReg      dq 0
+tmp                     dq 0
