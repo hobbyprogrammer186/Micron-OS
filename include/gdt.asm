@@ -33,6 +33,9 @@ gdtInit:
     lgdt [gdtDescriptor]
     ret
 
+; Usage:
+; -Input-
+; ax: state (1 for enable, 0 for disable)
 gdtSetMode:
     cmp ax, 1
     jge .enable

@@ -26,9 +26,24 @@ start:
     mov eax, 0x0118
     call changeResulation
 
+; Usage:
+; -Input-
+; ax: system error code (defiend in definations.asm)
+; bx: error message leave empty to set default by error code
 panic:
     hlt
 
+; Usage:
+; -Input-
+; ax: system code (defiend in definations.asm)
+; (Error code = Error, Warning code = Warning, Info Code = Info)
+; bx: error message leave empty to set default by error code
+log:
+    ret
+
+; Usage:
+; -Input-
+; ax: mode (0 for real, 1 for protected)
 switchMode:
     cmp ax, 0
     je .real

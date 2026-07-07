@@ -51,6 +51,12 @@ struc VesaModeInfoBlock				;	VesaModeInfoBlock_size = 256 bytes
 	.Reserved2		resb 206	;	available in Revision 3.0, but useless for now
 endstruc
 
+; Usage:
+; -Output-
+; al = 3: VBE3
+; al = 2: VBE2
+; al = 0: Unsupported
+bits 16
 supportedVersionOfVBE:
     mov dword [es:di], 'VBE3'
     mov ax, 0x4F00
@@ -73,6 +79,9 @@ supportedVersionOfVBE:
     mov ax, 0
     ret
 
+; Usage:
+; -Input-
+; eax: Resulation
 changeResulation:
     bits 16
     push ax                 ; save resolution mode number

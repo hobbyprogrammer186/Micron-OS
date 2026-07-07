@@ -7,7 +7,7 @@
 ; (at your option) any later version.
 ;
 
-; System Code
+; BIOS System Code
 %define SYSTEM_CODE_SUCCESS                    0x00  ; No error
 %define SYSTEM_CODE_ERROR_INVALID_FUNCTION     0x01  ; Invalid function
 %define SYSTEM_CODE_ERROR_FILE_NOT_FOUND       0x02  ; File not found
@@ -47,7 +47,10 @@
 %define SYSTEM_CODE_ERROR_DEVICE_MISSING       0x2E  ; Device missing
 %define SYSTEM_CODE_ERROR_SEEK_ON_DEVICE       0x2F  ; Seek on device
 %define SYSTEM_CODE_ERROR_NON_SYSTEM_DISK      0x30  ; Non-system disk
+
+; Extended System Code
 %define SYSTEM_CODE_ERROR_INCAPABLE            0x31  ; Not Supported
+%define SYSTEM_CODE_ERROR_BUFFER_OVERFLOW      0x32  ; Buffer Overflow
 
 ; Memory Region Types
 %define MREGION_USEABLE                        1

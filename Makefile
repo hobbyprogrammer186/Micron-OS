@@ -41,19 +41,19 @@ micron: $(BUILD_OBJS)
 
 $(BUILD_DIR)/kernel/%.obj: kernel/%.asm
 	@echo "  AS $@"
-	@mkdir -p $(dir $@)
+#	@mkdir -p $(dir $@)
 
 $(BUILD_DIR)/%.obj: kernel/%.asm
 	@echo "  AS $@"
-	@mkdir -p $(dir $@)
+#	@mkdir -p $(dir $@)
 
 $(BUILD_DIR)/drivers/%.obj: drivers/%.asm
 	@echo "  AS $@"
-	@mkdir -p $(dir $@)
+#	@mkdir -p $(dir $@)
 
 $(BUILD_DIR)/%.obj: drivers/%.asm
 	@echo "  AS $@"
-	@mkdir -p $(dir $@)
+#	@mkdir -p $(dir $@)
 
 clean:
 	@rm -rf $(BUILD_DIR)
