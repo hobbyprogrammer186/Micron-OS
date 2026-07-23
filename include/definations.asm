@@ -51,7 +51,12 @@
 ; Extended System Code
 %define SYSTEM_CODE_ERROR_INCAPABLE            0x31  ; Not Supported
 %define SYSTEM_CODE_ERROR_BUFFER_OVERFLOW      0x32  ; Buffer Overflow
-%define SYSTEM_CODE_ERROR_MM_INIT_FAILURE       0x33  ; MM Initialization Failure
+%define SYSTEM_CODE_ERROR_MM_INIT_FAILURE      0x33  ; MM Initialization Failure
+%define SYSTEM_CODE_ERROR_NO_VBE_SUPPORT       0x34  ; VESA VBE Extensions completely missing (AL != 0x4F)
+%define SYSTEM_CODE_ERROR_VBE_SWITCH_FAILED    0x35  ; VBE function call failed physically (AH = 0x01)
+%define SYSTEM_CODE_ERROR_VBE_HW_MISMATCH      0x36  ; Function not supported on this controller (AH = 0x02)
+%define SYSTEM_CODE_ERROR_VBE_INVALID_MODE     0x37  ; Target video mode invalid or unsupported (AH = 0x03)
+%define SYSTEM_CODE_ERROR_UNKNOWN              0x38  ; Unknown Error
 
 ; Memory Region Types
 %define MREGION_USEABLE                        1

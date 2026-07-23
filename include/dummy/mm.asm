@@ -1,3 +1,3 @@
-mm_init:
+mmInit:
 kmalloc:
-free
+free:

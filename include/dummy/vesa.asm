@@ -1,3 +1,26 @@
 bits 16
 supportedVersionOfVBE:
+VBEGetVersion:
 changeResulation:
+vbeInit:
+VBEGetInfo:
+VBEGetControllerInfo:
+VBEGetModeInfo:
+VBESetMode:
+VBEGetCurrentMode:
+VBEFindMode:
+VBESetDisplayStart:
+VBEGetDisplayStart:
+VBESaveRestoreState:
+VBESetPaletteData:
+VBEGetPaletteData:
+VBESetPaletteFormat:
+VBEGetPaletteFormat:
+VBEDPMSGet:
+VBEDPMSSet:
+VBEFlatPanelGet:
+VBEFlatPanelSet:
+VBEGetEDID:
+VBEGetSetDisplayData:
+VBEStereo:
+checkVBEResult:

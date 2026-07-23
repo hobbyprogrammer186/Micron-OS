@@ -28,8 +28,10 @@ start:
     mov ss, ax
 
     call gdtInit
+    call mmInit
     mov eax, 0x0118
     call changeResulation
+    jmp $
 
 ; Usage:
 ; -Input-

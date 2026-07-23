@@ -83,6 +83,96 @@ getAddressOfList:
     mov ax, cx
     ret
 
+; Usage
+; -Input-
+; ax: source address (pointer to VariableRegion chain)
+; bx: size
+; cx: target address
+memcpy:
+    push ax
+    push bx
+    push cx
+    push si
+    push di
+
+    mov si, ax
+    mov di, cx
+    mov cx, bx
+
+    cmp dword [si + VariableRegion.base], 0
+    je .notExist
+
+.getLen:
+    mov bx, [si + VariableRegion.len]
+
+.isEnoughForFit:
+    cmp cx, bx
+    je .checkChunk
+    jb .enough
+
+    ; cx > bx: copy full chunk, reduce remaining, follow next
+    push cx
+    push si
+    lea si, [si + VariableRegion_size]
+    mov cx, bx
+    rep movsb
+    pop si
+    pop cx
+    sub cx, bx
+
+.next:
+    mov si, [si + VariableRegion.next]
+    cmp si, 0
+    je .notEnough
+    jmp .getLen
+
+.checkChunk:
+    ; cx == bx: copy entire chunk and finish
+    push cx
+    lea si, [si + VariableRegion_size]
+    rep movsb
+    pop cx
+    jmp .done
+
+.enough:
+    ; cx < bx: copy only remaining cx bytes from this chunk
+    push cx
+    lea si, [si + VariableRegion_size]
+    rep movsb
+    pop cx
+    jmp .done
+
+.notExist:
+    pop di
+    pop si
+    pop cx
+    pop bx
+    pop ax
+    mov ax, SYSTEM_CODE_ERROR_INVALID_MEMORY_BLOCK
+    ret
+
+.notEnough:
+    pop di
+    pop si
+    pop cx
+    pop ax
+    mov ax, SYSTEM_CODE_ERROR_OUT_OF_MEMORY
+    xor bx, bx
+    call log
+    pop bx
+    ret
+
+.done:
+    pop di
+    pop si
+    pop cx
+    pop ax
+    mov ax, SYSTEM_CODE_SUCCESS
+    xor bx, bx
+    call log
+    pop bx
+    ret
+
 
 ; Usage:
 ; -Input-
