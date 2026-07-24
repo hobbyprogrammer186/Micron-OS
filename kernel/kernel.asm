@@ -7,7 +7,7 @@
 ; (at your option) any later version.
 ;
 
-bits 32
+bits 16
 org 0x7E00
 
 %include "gdt.asm"
@@ -27,7 +27,30 @@ start:
     mov ax, 0x7E00
     mov ss, ax
 
+    ; Setup GDT and switch to protected mode
     call gdtInit
+    cli
+    lgdt [gdtDescriptor]
+
+    ; Enable protected mode using 16-bit instructions
+    smsw ax                 ; Load CR0 low 16 bits
+    or ax, 1                ; Set PE bit
+    lmsw ax                 ; Store back to CR0
+
+    ; Far jump to 32-bit code
+    jmp 0x08:protected_mode_entry
+
+bits 32
+protected_mode_entry:
+    ; Setup segments
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
+    ; Continue with kernel initialization
     call mmInit
     mov eax, 0x0118
     call changeResulation

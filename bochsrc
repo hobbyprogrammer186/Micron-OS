@@ -1,0 +1,13 @@
+megs: 32
+romimage: file=/usr/share/seabios/bios-256k.bin, address=0xc0000
+vgaromimage: file=/usr/share/seabios/vgabios-stdvga.bin
+floppya: 1_44=build/micron.img, status=inserted
+boot: floppy
+log: build/bochs.log
+panic: action=ask
+error: action=ask
+info: action=report
+debug: action=ignore
+cpu: count=1
+clock: sync=realtime, time0=local
+display_library: rfb, options="timeout=60"

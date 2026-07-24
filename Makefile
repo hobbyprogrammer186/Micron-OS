@@ -1,11 +1,10 @@
-BUILD_DIR=build
+BUILD_DIR_RELATIVE=build
+BUILD_DIR=$(CURDIR)/$(BUILD_DIR_RELATIVE)
 INCLUDE_DIR=$(CURDIR)/include
 ASM=nasm
 ASFLAGS=-d$(LANGUAGE) -i $(INCLUDE_DIR) -f bin
-CC=gcc
-CFLAGS=-ffreestanding -nostdlib -m32 -I$(INCLUDE_DIR)
-LD=ld
 LANGUAGE=en_us
+SOURCE_DIR=$(CURDIR)
 
 ASMObjects = $(PRE_INCLUDE_SOURCES)
 OBJ =
@@ -13,7 +12,7 @@ OBJ =
 include drivers/video/Makefile
 include kernel/Makefile
 
-all: postBuild micron
+all: postBuild micron afterKernel
 
 postBuild:
 	@echo "=============="
@@ -43,27 +42,40 @@ ifeq ($(LINT),1)
 	done
 	@echo "  LINT Complete (No Errors)"
 else
-	@echo "  LD $(BUILD_DIR)/$@"
+	@echo "  LD $(BUILD_DIR_RELATIVE)/$@"
 	@$(ASM) -i $(INCLUDE_DIR) -d$(LANGUAGE) $(ASFLAGS) $(NASM_PRE_INCLUDES) kernel/kernel.asm -o $(BUILD_DIR)/$@.tmp
 	@$(ASM) -i $(INCLUDE_DIR) -d$(LANGUAGE) -dSIZE=$$(stat -c %s $(BUILD_DIR)/$@.tmp) -dKERNEL $(ASFLAGS) $(NASM_PRE_INCLUDES) kernel/kernel.asm -o $(BUILD_DIR)/$@
 	@rm -rf $(BUILD_DIR)/$@.tmp
 endif
 
 $(BUILD_DIR)/kernel/%.obj: kernel/%.asm
-	@echo "  AS $@"
+	@echo "  AS $(BUILD_DIR_RELATIVE)/kernel/$*.obj"
 #	@mkdir -p $(dir $@)
 
 $(BUILD_DIR)/%.obj: kernel/%.asm
-	@echo "  AS $@"
+	@echo "  AS $(BUILD_DIR_RELATIVE)/$*.obj"
 #	@mkdir -p $(dir $@)
 
 $(BUILD_DIR)/drivers/%.obj: drivers/%.asm
-	@echo "  AS $@"
+	@echo "  AS $(BUILD_DIR_RELATIVE)/drivers/$*.obj"
 #	@mkdir -p $(dir $@)
 
 $(BUILD_DIR)/%.obj: drivers/%.asm
-	@echo "  AS $@"
+	@echo "  AS $(BUILD_DIR_RELATIVE)/$*.obj"
 #	@mkdir -p $(dir $@)
+
+afterKernel:
+	@$(MAKE) -C $(CURDIR)/boot
+
+debug: all
+	@echo "  QEMU $(BUILD_DIR_RELATIVE)/micron.img (GDB :1234)"
+	qemu-system-x86_64 -fda $(BUILD_DIR_RELATIVE)/micron.img -boot a -m 32 -s -S
+
+debug-bochs: all
+	@echo "  BX $(BUILD_DIR_RELATIVE)/micron.img"
+	bochs -f bochsrc -q
 
 clean:
 	@rm -rf $(BUILD_DIR)
+
+export BUILD_DIR ASM ASFLAGS LANGUAGE SOURCE_DIR
